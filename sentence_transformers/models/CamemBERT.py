@@ -1,7 +1,6 @@
 
 from torch import Tensor
 from torch import nn
-#from pytorch_transformers import RobertaModel, RobertaTokenizer
 from transformers.tokenization_camembert import CamembertTokenizer
 from transformers.modeling_camembert import CamembertModel
 import json
