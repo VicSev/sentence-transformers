@@ -1,8 +1,8 @@
-# Sentence Transformers: Sentence Embeddings using BERT / RoBERTa / XLNet with PyTorch
-BERT / XLNet produces out-of-the-box rather bad sentence embeddings. This repository fine-tunes BERT / XLNet with a siamese or triplet network structure to produce semantically meaningful sentence embeddings that can be used in unsupervised scenarios: Semantic textual similarity via cosine-similarity, clustering, semantic search.
+# Sentence Transformers: Sentence Embeddings using BERT / RoBERTa / DistilBERT / ALBERT / XLNet with PyTorch
+BERT / XLNet produces out-of-the-box rather bad sentence embeddings. This repository fine-tunes BERT / RoBERTa / DistilBERT / ALBERT / XLNet with a siamese or triplet network structure to produce semantically meaningful sentence embeddings that can be used in unsupervised scenarios: Semantic textual similarity via cosine-similarity, clustering, semantic search.
 
 
-We provide an increasing number of **state-of-the-art pretrained models** that can be used to derive sentence embeddings. See [Pretrained Models](#pretrained-models). Details of the implemented approaches can be found in our publication: [Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks](https://arxiv.org/abs/1908.10084) (published at EMNLP 2019).
+We provide an increasing number of **state-of-the-art pretrained models** that can be used to derive sentence embeddings. See [Pretrained Models](#pretrained-models). Details of the implemented approaches can be found in our publication: [Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks](https://arxiv.org/abs/1908.10084) (EMNLP 2019).
 
 
 You can use this code to easily **train your own sentence embeddings**, that are tuned for your specific task. We provide various dataset readers and you can tune sentence embeddings with different loss function, depending on the structure of your dataset. For further details, see [Train your own Sentence Embeddings](#Training).
@@ -10,7 +10,7 @@ You can use this code to easily **train your own sentence embeddings**, that are
 
 
 ## Setup
-We recommend Python 3.6 or higher. The model is implemented with PyTorch (at least 1.0.1) using [pytorch-transformers v1.1.0](https://github.com/huggingface/pytorch-transformers).
+We recommend Python 3.6 or higher. The model is implemented with PyTorch (at least 1.0.1) using [transformers v2.2.1](https://github.com/huggingface/transformers).
 The code does **not** work with Python 2.7.
 
 **With pip**
@@ -191,18 +191,26 @@ BERT Sentence Embeddings have been extensively tested and tuned. We released the
 **Trained on NLI data**
 
 These models were trained on SNLI and MultiNLI dataset to create universal sentence embeddings. For more details, see: [nli-models.md](docs/pretrained-models/nli-models.md).
-- **bert-base-nli-mean-tokens**: This model fine-tuned BERT-base on the AllNLI dataset. As pooling strategy, mean-tokens was used. Performance: STSbenchmark: 77.12
-- **bert-base-nli-max-tokens**: This model fine-tuned BERT-base on the AllNLI dataset. As pooling strategy, max-tokens was used. Performance: STSbenchmark: 77.18
-- **bert-base-nli-cls-token**: This model fine-tuned BERT-base on the AllNLI dataset. As pooling strategy, the CLS token was used. Performance: STSbenchmark: 76.30
-- **bert-large-nli-mean-tokens**: This model fine-tuned BERT-large on the AllNLI dataset. As pooling strategy, mean-tokens was used. Performance: STSbenchmark: 79.19
-- **bert-large-nli-max-tokens**: This model fine-tuned BERT-large on the AllNLI dataset. As pooling strategy, max-tokens was used. Performance: STSbenchmark: 78.32
-- **bert-large-nli-cls-token**: This model fine-tuned BERT-large on the AllNLI dataset. As pooling strategy, the CLS token was used. Performance: STSbenchmark: 78.29
+- **bert-base-nli-mean-tokens**: BERT-base model with mean-tokens pooling. Performance: STSbenchmark: 77.12
+- **bert-base-nli-max-tokens**: BERT-base with max-tokens pooling. Performance: STSbenchmark: 77.18
+- **bert-base-nli-cls-token**: BERT-base with cls token pooling. Performance: STSbenchmark: 76.30
+- **bert-large-nli-mean-tokens**: BERT-large with mean-tokens pooling. Performance: STSbenchmark: 79.19
+- **bert-large-nli-max-tokens**: BERT-large with max-tokens pooling. Performance: STSbenchmark: 78.32
+- **bert-large-nli-cls-token**: BERT-large with CLS token pooling. Performance: STSbenchmark: 78.29
+- **roberta-base-nli-mean-tokens**: RoBERTa-base with mean-tokens pooling. Performance: STSbenchmark: 77.42
+- **roberta-large-nli-mean-tokens**: RoBERTa-base with mean-tokens pooling. Performance: STSbenchmark: 78.58
+- **distilbert-base-nli-mean-tokens**: DistilBERT-base with mean-tokens pooling. Performance: STSbenchmark: 76.97
+
 
 **Trained on STS data**
 
-These models were fine-tuned on the training set of the STS benchmark. They are specifically well suited for semantic textual similarity. For more details, see: [sts-models.md](docs/pretrained-models/sts-models.md).
-- **bert-base-nli-stsb-mean-tokens**: First fine-tuned on AllNLI, then on STS benchmark training set. Performance: STSbenchmark: 85.14
-- **bert-large-nli-stsb-mean-tokens**: First fine-tuned on AllNLI, then on STS benchmark training set. Performance: STSbenchmark: 85.29
+These models were first fine-tuned on the AllNLI datasent, then on train set of STS benchmark. They are specifically well suited for semantic textual similarity. For more details, see: [sts-models.md](docs/pretrained-models/sts-models.md).
+- **bert-base-nli-stsb-mean-tokens**: Performance: STSbenchmark: 85.14
+- **bert-large-nli-stsb-mean-tokens**: Performance: STSbenchmark: 85.29
+- **roberta-base-nli-stsb-mean-tokens**: Performance: STSbenchmark: 85.40
+- **roberta-large-nli-stsb-mean-tokens**: Performance: STSbenchmark: 86.31
+- **distilbert-base-nli-stsb-mean-tokens**: Performance: STSbenchmark: 84.38
+
 
 **Trained on Wikipedia Sections Triplets**
 
@@ -256,6 +264,8 @@ This framework implements various modules, that can be used sequentially to map 
 **Word Embeddings:** These models map tokens to token embeddings.
 - **[BERT](sentence_transformers/models/BERT.py)**: Uses pytorch-transformers BERT model to map tokens to vectors. Example:  [examples/training_nli_bert.py](examples/training_nli_bert.py) / [examples/training_stsbenchmark_bert.py](examples/training_stsbenchmark_bert.py)
 - **[RoBERTa](sentence_transformers/models/RoBERTa.py)**: Uses pytorch-transformers RoBERTa model to map tokens to vectors. Example:  [examples/training_nli_roberta.py](examples/training_nli_roberta.py) / [examples/training_stsbenchmark_roberta.py](examples/training_stsbenchmark_roberta.py)
+- **[DistilBERT](sentence_transformers/models/DistilBERT.py)**: DistilBERT is a small, fast, cheap and light model based on BERT. Example:  [examples/training_nli_distilbert.py](examples/training_nli_distilbert.py) / [examples/training_stsbenchmark_distilbert.py](examples/training_stsbenchmark_distilbert.py)
+- **[ALBERT](sentence_transformers/models/ALBERT.py)**: Based on [ALBERT](https://arxiv.org/abs/1909.11942). Currently, ALBERT has some bugs in transformer==2.2.1, which should be fixed with the next version. Example:  [examples/training_nli_albert.py](examples/training_nli_albert.py) / [examples/training_stsbenchmark_albert.py](examples/training_stsbenchmark_albert.py)
 - **[XLNet](sentence_transformers/models/XLNet.py)**: Uses pytorch-transformers XLNet model to map tokens to vectors. Example: [examples/training_stsbenchmark_xlnet.py](examples/training_stsbenchmark_xlnet.py)
 - **[WordEmbeddings](sentence_transformers/models/WordEmbeddings.py)**: Uses traditional word embeddings like word2vec or GloVe to map tokens to vectors. Example: [examples/training_stsbenchmark_avg_word_embeddings.py](examples/training_stsbenchmark_avg_word_embeddings.py)
 

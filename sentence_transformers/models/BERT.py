@@ -1,6 +1,6 @@
 from torch import Tensor
 from torch import nn
-from pytorch_transformers import  BertModel, BertTokenizer
+from transformers import  BertModel, BertTokenizer
 import json
 from typing import Union, Tuple, List, Dict
 import os
@@ -37,13 +37,13 @@ class BERT(nn.Module):
     def get_word_embedding_dimension(self) -> int:
         return self.bert.config.hidden_size
 
-    def tokenize(self, text: str) -> List[str]:
+    def tokenize(self, text: str) -> List[int]:
         """
         Tokenizes a text and maps tokens to token-ids
         """
         return self.tokenizer.convert_tokens_to_ids(self.tokenizer.tokenize(text))
 
-    def get_sentence_features(self, tokens: List[str], pad_seq_length: int):
+    def get_sentence_features(self, tokens: List[int], pad_seq_length: int):
         """
         Convert tokenized sentence in its embedding ids, segment ids and mask
 

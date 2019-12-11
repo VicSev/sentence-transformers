@@ -7,7 +7,7 @@ from typing import List, Dict, Tuple, Iterable, Type
 from zipfile import ZipFile
 
 import numpy as np
-import pytorch_transformers
+import transformers
 import torch
 from numpy import ndarray
 from torch import nn, Tensor
@@ -66,6 +66,13 @@ class SentenceTransformer(nn.Sequential):
             #### Load from disk
             if model_path is not None:
                 logging.info("Load SentenceTransformer from folder: {}".format(model_path))
+
+                if os.path.exists(os.path.join(model_path, 'config.json')):
+                    with open(os.path.join(model_path, 'config.json')) as fIn:
+                        config = json.load(fIn)
+                        if config['__version__'] > __version__:
+                            logging.warning("You try to use a model that was created with version {}, however, your version is {}. This might cause unexpected behavior or errors. In that case, try to update to the latest version.\n\n\n".format(config['__version__'], __version__))
+
                 with open(os.path.join(model_path, 'modules.json')) as fIn:
                     contained_modules = json.load(fIn)
 
@@ -226,7 +233,7 @@ class SentenceTransformer(nn.Sequential):
             epochs: int = 1,
             scheduler: str = 'WarmupLinear',
             warmup_steps: int = 10000,
-            optimizer_class: Type[Optimizer] = pytorch_transformers.AdamW,
+            optimizer_class: Type[Optimizer] = transformers.AdamW,
             optimizer_params : Dict[str, object ]= {'lr': 2e-5, 'eps': 1e-6, 'correct_bias': False},
             weight_decay: float = 0.01,
             evaluation_steps: int = 0,
@@ -234,7 +241,7 @@ class SentenceTransformer(nn.Sequential):
             save_best_model: bool = True,
             max_grad_norm: float = 1,
             fp16: bool = False,
-            fp16_opt_level: str = '01',
+            fp16_opt_level: str = 'O1',
             local_rank: int = -1
             ):
         """
@@ -394,14 +401,14 @@ class SentenceTransformer(nn.Sequential):
         """
         scheduler = scheduler.lower()
         if scheduler == 'constantlr':
-            return pytorch_transformers.ConstantLRSchedule(optimizer)
+            return transformers.get_constant_schedule(optimizer)
         elif scheduler == 'warmupconstant':
-            return pytorch_transformers.WarmupConstantSchedule(optimizer, warmup_steps=warmup_steps)
+            return transformers.get_constant_schedule_with_warmup(optimizer, num_warmup_steps=warmup_steps)
         elif scheduler == 'warmuplinear':
-            return pytorch_transformers.WarmupLinearSchedule(optimizer, warmup_steps=warmup_steps, t_total=t_total)
+            return transformers.get_linear_schedule_with_warmup(optimizer, num_warmup_steps=warmup_steps, num_training_steps=t_total)
         elif scheduler == 'warmupcosine':
-            return pytorch_transformers.WarmupCosineSchedule(optimizer, warmup_steps=warmup_steps, t_total=t_total)
+            return transformers.get_cosine_schedule_with_warmup(optimizer, num_warmup_steps=warmup_steps, num_training_steps=t_total)
         elif scheduler == 'warmupcosinewithhardrestarts':
-            return pytorch_transformers.WarmupCosineWithHardRestartsSchedule(optimizer, warmup_steps=warmup_steps, t_total=t_total)
+            return transformers.get_cosine_with_hard_restarts_schedule_with_warmup(optimizer, num_warmup_steps=warmup_steps, num_training_steps=t_total)
         else:
             raise ValueError("Unknown scheduler {}".format(scheduler))

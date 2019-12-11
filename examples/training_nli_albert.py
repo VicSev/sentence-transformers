@@ -1,5 +1,5 @@
 """
-The system trains BERT on the SNLI + MultiNLI (AllNLI) dataset
+The system ALBERT trains on the SNLI + MultiNLI (AllNLI) dataset
 with softmax loss function. At every 1000 training steps, the model is evaluated on the
 STS benchmark dataset
 """
@@ -12,6 +12,7 @@ from sentence_transformers.readers import *
 import logging
 from datetime import datetime
 
+
 #### Just some code to print debug information to stdout
 logging.basicConfig(format='%(asctime)s - %(message)s',
                     datefmt='%Y-%m-%d %H:%M:%S',
@@ -20,7 +21,7 @@ logging.basicConfig(format='%(asctime)s - %(message)s',
 #### /print debug information to stdout
 
 # Read the dataset
-model_name = 'bert-base-uncased'
+model_name = 'albert-base-v2'
 batch_size = 16
 nli_reader = NLIDataReader('datasets/AllNLI')
 sts_reader = STSDataReader('datasets/stsbenchmark')
@@ -29,8 +30,8 @@ model_save_path = 'output/training_nli_'+model_name+'-'+datetime.now().strftime(
 
 
 
-# Use BERT for mapping tokens to embeddings
-word_embedding_model = models.BERT(model_name)
+# Use ALBERT for mapping tokens to embeddings
+word_embedding_model = models.ALBERT(model_name)
 
 # Apply mean pooling to get one fixed sized sentence vector
 pooling_model = models.Pooling(word_embedding_model.get_word_embedding_dimension(),
@@ -57,9 +58,8 @@ evaluator = EmbeddingSimilarityEvaluator(dev_dataloader)
 # Configure the training
 num_epochs = 1
 
-warmup_steps = math.ceil(len(train_dataloader) * num_epochs * 0.1) #10% of train data for warm-up
+warmup_steps = math.ceil(len(train_data) * num_epochs / batch_size * 0.1) #10% of train data for warm-up
 logging.info("Warmup-steps: {}".format(warmup_steps))
-
 
 
 # Train the model
